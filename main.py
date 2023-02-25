@@ -71,7 +71,7 @@ async def audio(message:types.Message, state:FSMContext):
     try:
         await message.answer(f"Отправляем аудио")
         with open(audio, 'rb') as down_audio:
-            await message.answer_video(down_audio)
+            await message.answer_audio(down_audio)
             os.remove(audio)
     except:
         await message.answer("Произошла ошибка при отправке аудио")
