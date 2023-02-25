@@ -47,12 +47,47 @@ async def download_video(message:types.Message, state:FSMContext):
         await message.answer(f"Отправляем видео")
         with open(video, 'rb') as down_video:
             await message.answer_video(down_video)
+            os.remove(video)
     except:
         await message.answer("Произошла ошибка при отправке видео")
+    
     await state.finish()
+
+
+class DownloadAudio(StatesGroup):
+    download = State()
+
+@dp.message_handler(commands=['audio'])
+async def audio(message:types.Message):
+    await message.reply(f'Отправьте ссылку на видео и я вам скачаю его')
+    await DownloadAudio.download.set()
+
+@dp.message_handler(state=DownloadAudio.download)
+async def audio(message:types.Message, state:FSMContext):
+    await message.answer("Скачиваем аудио")
+    yt = YouTube(message.text)
+    await message.reply(f'{yt.title}')
+    audio = yt.streams.filter(only_audio=True).first().download('audio', f'{yt.title}.mp3')
+    try:
+        await message.answer(f"Отправляем аудио")
+        with open(audio, 'rb') as down_audio:
+            await message.answer_video(down_audio)
+            os.remove(audio)
+    except:
+        await message.answer("Произошла ошибка при отправке аудио")
+
+    await state.finish()
+
+    
+
+
 
 @dp.message_handler()
 async def not_found(message:types.Message):
     await message.reply(f"Я вас не понял, введите /help")
 
+
+
+
 executor.start_polling(dp)
+
